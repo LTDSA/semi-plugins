@@ -1,0 +1,31 @@
+{
+    "name": "@semi-app/plugin-sdk",
+    "version": "0.7.2",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LTDSA/Semi.git",
+        "directory": "packages/plugin-sdk"
+    },
+    "files": [
+        "index.mjs",
+        "version.mjs",
+        "index.d.ts",
+        "device-contracts.json"
+    ],
+    "type": "module",
+    "main": "index.mjs",
+    "types": "index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./index.d.ts",
+            "import": "./index.mjs"
+        }
+    },
+    "description": "Semi 插件 SDK",
+    "license": "ISC",
+    "author": "LTDSA",
+    "homepage": "https://github.com/LTDSA/Semi/tree/main/docs/plugins",
+    "publishConfig": {
+        "access": "public"
+    }
+}

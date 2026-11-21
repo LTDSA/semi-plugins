@@ -1,0 +1,275 @@
+/* 所有 React 入口共享的基础样式。
+ * Semi 官方 token 只声明变量，不自动给 body 上背景色；
+ * 这里沿用旧版语义：浅色白底、暗色深底，用 Semi 背景 token 驱动。
+ */
+/* 桌面界面统一去除键盘焦点外框。Semi 部分规则有较高优先级，
+ * 使用 important 覆盖；同时覆盖由组件状态类绘制的焦点框。
+ * 不改变控件边框、选中态或 outline 主题按钮的正常样式。 */
+:focus,
+:focus-visible,
+:focus-within,
+.semi-avatar-focus,
+.semi-checkbox-focus,
+.semi-radio-focus,
+.semi-rating-focus,
+.semi-switch-focus {
+    outline: none !important;
+}
+.semi-list-bordered {
+    border-radius: var(--semi-border-radius-medium);
+    overflow: hidden;
+}
+
+/* extra 中的 Switch 使用 flex 居中，避免行内基线额外撑高容器、偏离文字中线。 */
+.semi-plugin-permission-list .semi-list-item-extra {
+    display: flex;
+    align-items: center;
+}
+
+.semi-plugin-permission-list .semi-list-item-body {
+    min-width: 0;
+}
+
+.semi-plugin-permission-description {
+    margin-top: 4px;
+    color: var(--semi-color-text-2);
+    font-size: 12px;
+    line-height: 18px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    color: var(--semi-color-text-0);
+    background-color: var(--semi-color-bg-0);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC,
+        Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* CSS 可能先于主题模块执行：此时 Semi token 仍为亮色，先匹配系统背景。 */
+@media (prefers-color-scheme: dark) {
+    body:not([theme-mode]) { background-color: #16161a; }
+}
+
+img {
+    -webkit-user-drag: none;
+}
+
+/* 统一的自定义滚动条：细、半透明，不滚动时不显示，指针移到滚动条上时由 2px 平滑变宽到 4px。
+
+   两个实现约束（均已实测）：
+   1. 原生滚动条伪元素 ::-webkit-scrollbar-thumb 既不支持 transition 也不支持 animation，
+      所以「变宽」不能写在该伪元素上，改由所在元素的 --scrollbar-thumb-half 过渡带动重算。
+   2. @property 必须 inherits: true，伪元素才能读到元素上的值；但这样一来后代会继承，
+      因此两个变量都在 `*` 上显式声明初值来阻断继承——否则悬停某个容器时，
+      它所有后代的值都会跟着变，触发大量无谓的过渡。
+
+   滑块用「渐变色带」绘制（而不是靠 border 内缩）：可见宽度 = 2 × --scrollbar-thumb-half，
+   左右两侧的空隙由色带的透明区提供；上下两端的内缩仍由 2px 透明 border 提供。 */
+@property --scrollbar-thumb-half {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 1px;
+}
+
+* {
+    --scrollbar-thumb-half: 1px;
+    --scrollbar-thumb-color: transparent;
+    transition: --scrollbar-thumb-half 0.15s ease;
+}
+
+/* 指针落在滚动条那条窄带上时（由 ThemeProvider 的 mousemove 监听打标） */
+.is-scrollbar-hover {
+    --scrollbar-thumb-half: 2px;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 3px;
+}
+
+/* 纵向滚动条：色带沿水平方向铺开，上下各留 2px */
+*::-webkit-scrollbar-thumb:vertical {
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    background-clip: padding-box;
+    background-image: linear-gradient(
+        90deg,
+        transparent calc(50% - var(--scrollbar-thumb-half)),
+        var(--scrollbar-thumb-color) calc(50% - var(--scrollbar-thumb-half)),
+        var(--scrollbar-thumb-color) calc(50% + var(--scrollbar-thumb-half)),
+        transparent calc(50% + var(--scrollbar-thumb-half))
+    );
+}
+
+/* 横向滚动条：色带沿垂直方向铺开，左右各留 2px */
+*::-webkit-scrollbar-thumb:horizontal {
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    background-clip: padding-box;
+    background-image: linear-gradient(
+        0deg,
+        transparent calc(50% - var(--scrollbar-thumb-half)),
+        var(--scrollbar-thumb-color) calc(50% - var(--scrollbar-thumb-half)),
+        var(--scrollbar-thumb-color) calc(50% + var(--scrollbar-thumb-half)),
+        transparent calc(50% + var(--scrollbar-thumb-half))
+    );
+}
+
+/* 停止滚动约 0.9s 后 .is-scrolling 被摘掉，滑块恢复透明（不滚动就不显示） */
+.is-scrolling {
+    --scrollbar-thumb-color: rgba(0, 0, 0, 0.25);
+}
+
+body[theme-mode='dark'] .is-scrolling {
+    --scrollbar-thumb-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 指针停在滚动条上：既加宽也显形——所以即使停止滚动，只要指针还在滚动条上就依然可见 */
+.is-scrollbar-hover,
+.is-scrolling.is-scrollbar-hover {
+    --scrollbar-thumb-half: 2px;
+    --scrollbar-thumb-color: rgba(0, 0, 0, 0.4);
+}
+
+body[theme-mode='dark'] .is-scrollbar-hover,
+body[theme-mode='dark'] .is-scrolling.is-scrollbar-hover {
+    --scrollbar-thumb-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Semi 的 Switch 选中色默认用 success（绿），旧版用的是蓝色。
+   按 Semi 的色阶语义取蓝：-5 常态 / -6 hover / -7 按下；
+   禁用态沿用旧版的 primary-disabled。
+   其余状态（未选中、禁用时的透明底 + 描边、滑块）旧版与 Semi 本就一致，不再覆写。
+
+   选择器前面加 `body`（而非直接写 .semi-switch-checked）是为了**与样式表顺序无关**：
+   打包后 Semi 的组件 CSS 会出现两份——完整版（含 token）在共享 chunk 里，
+   组件级的那份在入口 chunk 里，而入口 chunk 的 <link> 排在共享 chunk 之后。
+   同特异性下后者胜出，绿色会盖掉这里的蓝色（dev 下按模块顺序注入，没有这个问题）。
+   加一层元素选择器把特异性提到 (0,1,1)/(0,2,1)，无论顺序都能生效。 */
+body .semi-switch-checked {
+    background-color: rgb(var(--semi-blue-5));
+}
+
+body .semi-switch-checked:hover {
+    background-color: rgb(var(--semi-blue-6));
+}
+
+body .semi-switch-checked.semi-switch-active {
+    background-color: rgb(var(--semi-blue-7));
+}
+
+body .semi-switch-disabled.semi-switch-checked {
+    background-color: var(--semi-color-primary-disabled);
+}
+
+/* Windows 自定义标题栏：主窗口与登录页共用（旧版 .semi-toolbar / .semi-toolbar-action）。
+   按钮个数随页面不同——登录页只有关闭，主窗口还有最小化/最大化，
+   因此这里不假设数量：关闭按钮一律用 :last-child 命中。
+   各页面自己的差异（状态页透明、登录页的 padding-left）留在各自的样式里。
+
+   层级取 900：必须低于 Semi 浮层的基准 1000，否则对话框打开时遮罩盖不住它；
+   同时低于主界面侧边栏（950），顶栏才不会盖住侧边栏。 */
+.app-toolbar {
+    width: 100%;
+    height: 32px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 900;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-app-region: drag;
+}
+
+body[theme-mode='dark'] .app-toolbar {
+    background-color: rgba(22, 22, 26, 0.9);
+}
+
+.app-toolbar-action {
+    float: right;
+}
+
+.app-toolbar-action > div {
+    width: 48px;
+    height: 32px;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.08s;
+    -webkit-app-region: no-drag;
+}
+
+.app-toolbar-action > div:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.app-toolbar-action > div:last-child:hover {
+    background-color: #f44336;
+}
+
+.app-toolbar-action > div:last-child:hover img {
+    filter: invert(1);
+}
+
+/* 图标固定 12×14，用 margin 在 48×32 的按钮里居中（旧版 .semi-toolbar-action div img） */
+.app-toolbar-action > div img {
+    width: 12px;
+    height: 14px;
+    margin: 10px 18px;
+}
+
+/* 图标是深色线条，暗色下需要反色 */
+body[theme-mode='dark'] .app-toolbar-action > div img {
+    filter: invert(1);
+}
+
+/* 小徽标：主窗口的频段（2.4G / 5G）与「本机」「网关」，以及登录页的「离线」共用一套。
+   旧版对应 .semi-badge > .semi-badge-tertiary.semi-badge-light.semi-badge-count。
+   名字里的 console- 是历史原因（原先只用在控制台），现在是全应用共用的基础样式。 */
+.console-badge {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    position: relative;
+    top: -2px;
+    height: 18px;
+    min-width: 18px;
+    padding: 0 4px;
+    margin-left: 8px;
+    border: 1px solid #fff;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    vertical-align: middle;
+    background-color: rgba(249, 249, 249, 1);
+    color: rgba(107, 112, 117, 1);
+}
+
+body[theme-mode='dark'] .console-badge {
+    border-color: rgb(35, 36, 41);
+    background-color: rgba(136, 141, 146, 0.2);
+    color: rgb(136, 141, 146);
+}

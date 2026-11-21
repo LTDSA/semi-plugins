@@ -1,0 +1,102 @@
+name: Build and publish community plugins
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semi-community-plugins-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run pack
+
+  dist:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      commit: ${{ steps.archive.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run pack -- "$RUNNER_TEMP/semi-plugin-pack"
+      - name: Write packages to dist
+        id: archive
+        env:
+          DIST_TOKEN: ${{ github.token }}
+        run: |
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$DIST_TOKEN" | base64 -w 0)"
+          bash scripts/publish-dist.sh "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/semi-plugin-pack"
+
+  publish:
+    if: vars.ENABLE_NPM_PUBLISH == 'true'
+    needs: dist
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.dist.outputs.commit }}
+          path: distribution
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - run: npm ci --ignore-scripts
+      - run: node scripts/publish.cjs distribution "$RUNNER_TEMP/published.json" "$RUNNER_TEMP/plugin-previews"
+      - uses: actions/create-github-app-token@v2
+        id: pages-token
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_APP_PRIVATE_KEY }}
+          owner: LTDSA
+          repositories: semi-releases
+          permission-contents: write
+      - uses: actions/checkout@v4
+        with:
+          repository: LTDSA/semi-releases
+          ref: main
+          path: semi-releases
+          token: ${{ steps.pages-token.outputs.token }}
+      - run: node scripts/sync-registry.cjs "$RUNNER_TEMP/published.json" semi-releases/docs/public/plugins/registry.json "$RUNNER_TEMP/plugin-previews"
+      - name: Sync registry for Pages
+        working-directory: semi-releases
+        run: |
+          git add -- docs/public/plugins
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name=semi-plugins -c user.email=semi-plugins@users.noreply.github.com commit -m 'Update community plugin registry'
+          git push origin HEAD:main

@@ -1,0 +1,93 @@
+{
+    "name": "miplay",
+    "version": "1.0.0",
+    "description": "连接智能音箱",
+    "author": "LTDSA",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "node build.cjs",
+        "build:fairplay": "node build-fairplay.cjs"
+    },
+    "semi": {
+        "displayName": "音频互联",
+        "icon": "music",
+        "color": "purple",
+        "permissions": [
+            "runtime.node",
+            "ui.tray.create"
+        ],
+        "permissionReasons": {
+            "ui.tray.create": "用于在托盘查看音频连接并保持服务运行。",
+            "runtime.node": "用于在后台运行 AirPlay 服务，接收并转发音频。"
+        },
+        "requires": [],
+        "contributes": {
+            "views": [
+                {
+                    "id": "main",
+                    "entry": "dist/index.html",
+                    "placement": "window",
+                    "window": {
+                        "width": 720,
+                        "height": 560
+                    }
+                },
+                {
+                    "id": "tray",
+                    "entry": "dist/tray.html",
+                    "placement": "tray",
+                    "keepAlive": true,
+                    "window": {
+                        "width": 320,
+                        "height": 170
+                    }
+                }
+            ]
+        },
+        "background": {
+            "runtime": "node",
+            "entry": "dist/background/main.cjs",
+            "permissions": [
+                "runtime.node"
+            ]
+        },
+        "activationEvents": [
+            "onResume"
+        ],
+        "scope": "account",
+        "services": [
+            {
+                "contract": "xiaomi.auth",
+                "version": 1
+            }
+        ]
+    },
+    "dependencies": {
+        "mediabunny": "1.65.2",
+        "@mediabunny/aac-encoder": "1.65.2",
+        "dns-packet": "^5.6.1",
+        "bonjour": "^3.5.1"
+    },
+    "devDependencies": {
+        "vite": "^4.5.14",
+        "@vitejs/plugin-react": "^4.7.0",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "@semi-app/plugin-sdk": "0.7.2",
+        "@semi/plugin-ui": "1.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LTDSA/semi-plugins.git",
+        "directory": "packages/miplay"
+    },
+    "engines": {
+        "semi": ">=0.7.2"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    }
+}

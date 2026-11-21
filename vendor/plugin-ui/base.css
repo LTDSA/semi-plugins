@@ -1,0 +1,77 @@
+/* 应用页面（app/*）专用样式；共享的基础样式见 theme.css。 */
+
+/* 应用内容容器：等价于旧版的 #content + .mdui-container。
+ * MDUI 的 container 是响应式的（96% / 94% / 92%），字号同样随断点变化，
+ * 因此这里一并还原，保证内容宽度与原文一致。
+ */
+.semi-app-content {
+    box-sizing: border-box;
+    width: 96%;
+    max-width: 1280px;
+    margin: 24px auto;
+    padding: 0 8px;
+    font-size: 14px;
+}
+
+@container semi-plugin-page (min-width: 600px) {
+    .semi-app-content {
+        width: 94%;
+        font-size: 14.5px;
+    }
+}
+
+@container semi-plugin-page (min-width: 1024px) {
+    .semi-app-content {
+        width: 92%;
+        font-size: 15px;
+    }
+}
+
+/* 旧版表格的表头与行都用页面底色，而 Semi 默认分别用 bg-1 与 grey-0，
+ * 暗色下会比页面亮、显得突兀。这里统一为透明以贴合页面背景。 */
+.semi-table-thead > .semi-table-row > .semi-table-row-head,
+.semi-table-tbody > .semi-table-row,
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+    background-color: transparent;
+}
+
+/* 旧版 Tab 与内容之间有一行间隔（源自 <br/>）；Semi 的 Tabs 内容区默认仅 5px 内边距，
+ * 这里用与旧版一致的一行高度（约 1.15em）对齐。 */
+.semi-tabs-content {
+    padding-top: 1.15em;
+    padding-bottom: 0;
+}
+
+/* 有序说明列表：还原旧页面 <ol> + <br> 的排版。
+ * 缩进与上下外边距沿用浏览器默认（旧版即如此），此处只补项间间距与正文主色
+ * （Semi 的 card-body 默认用 text-1 次要色，旧版 .semi-typo 是 text-0）。
+ */
+.semi-app-list {
+    color: var(--semi-color-text-0);
+}
+
+.semi-app-list li + li {
+    margin-top: 20px;
+}
+
+/* 响应式断点使用页面本身宽度，不受弹层临时扩大的 viewport 影响。 */
+#root {
+    container: semi-plugin-page / inline-size;
+}
+
+/* 原槽位从挂载开始保持相同布局；弹层 portal 留在 body 覆盖全窗。
+ * viewport 改变时 CSS 即时更新位移，避免原生尺寸与异步通知到达次序不同造成抽动。 */
+body.semi-host-embedded {
+    background: transparent !important;
+}
+
+body.semi-host-embedded #root {
+    position: absolute;
+    left: clamp(0px, calc((100vw - var(--semi-host-slot-width)) * var(--semi-host-slot-ratio-x)), var(--semi-host-slot-x));
+    top: clamp(0px, calc((100vh - var(--semi-host-slot-height)) * var(--semi-host-slot-ratio-y)), var(--semi-host-slot-y));
+    width: var(--semi-host-slot-width);
+    height: var(--semi-host-slot-height);
+    overflow: hidden;
+    contain: layout paint;
+    background: var(--semi-color-bg-0);
+}

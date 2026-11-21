@@ -1,0 +1,30 @@
+{
+    "name": "@semi/plugin-ui",
+    "version": "1.0.0",
+    "type": "module",
+    "exports": {
+        "./*": "./*"
+    },
+    "files": [
+        "*.js",
+        "*.jsx",
+        "*.mjs",
+        "*.css",
+        "prepare.cjs"
+    ],
+    "scripts": {
+        "prepare": "node prepare.cjs"
+    },
+    "dependencies": {
+        "@semi-app/plugin-sdk": "0.7.2"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "@douyinfe/semi-ui": "^2.103.0",
+        "@douyinfe/semi-icons": "^2.103.0",
+        "@douyinfe/semi-icons-lab": "^2.103.0",
+        "@douyinfe/semi-illustrations": "^2.103.0",
+        "lucide-react": "^1.43.0"
+    }
+}

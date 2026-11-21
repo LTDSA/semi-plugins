@@ -1,0 +1,141 @@
+{
+    "device.metrics@1": {
+        "name": "device.metrics",
+        "version": 1,
+        "methods": {
+            "describe": {
+                "params": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                },
+                "result": {
+                    "type": "object",
+                    "properties": {
+                        "intervalMs": {
+                            "type": "integer",
+                            "minimum": 1000,
+                            "maximum": 60000
+                        },
+                        "metrics": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "maxLength": 64
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "maxLength": 64
+                                    },
+                                    "chart": {
+                                        "type": "string",
+                                        "enum": [
+                                            "line",
+                                            "area",
+                                            "progress"
+                                        ]
+                                    },
+                                    "unit": {
+                                        "type": "string",
+                                        "maxLength": 32
+                                    },
+                                    "precision": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 4
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "enum": [
+                                            "green",
+                                            "blue",
+                                            "violet",
+                                            "cyan",
+                                            "amber"
+                                        ]
+                                    },
+                                    "icon": {
+                                        "type": "string",
+                                        "enum": [
+                                            "upload",
+                                            "download",
+                                            "memory",
+                                            "activity"
+                                        ]
+                                    },
+                                    "min": {
+                                        "type": "number"
+                                    },
+                                    "max": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "label",
+                                    "chart",
+                                    "unit",
+                                    "precision"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "maxItems": 24
+                        }
+                    },
+                    "required": [
+                        "intervalMs",
+                        "metrics"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "read": {
+                "params": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                },
+                "result": {
+                    "type": "object",
+                    "properties": {
+                        "timestamp": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "values": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "maxLength": 64
+                                    },
+                                    "value": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "value"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "maxItems": 24
+                        }
+                    },
+                    "required": [
+                        "timestamp",
+                        "values"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        }
+    }
+}
