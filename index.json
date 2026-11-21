@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "file": "packages/miplay/1.0.0.tgz",
+      "id": "miplay",
+      "version": "1.0.0",
+      "semi": ">=0.7.2",
+      "name": "音频互联",
+      "author": "LTDSA",
+      "description": "连接智能音箱",
+      "icon": "music",
+      "color": "purple",
+      "integrity": "sha512-YiWt9DhtnwTmDGxLCCVabhgYhH3Kj+YOuCTB8CIfHEdoyNryP3FNzEdUsLa9oNmChtp+NYg7Ti1IeBrZC1+3yQ=="
+    }
+  ]
+}
