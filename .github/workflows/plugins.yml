@@ -3,6 +3,8 @@ on:
   pull_request:
   push:
     branches: [main]
+    paths:
+      - 'packages/*/package.json'
   workflow_dispatch:
 
 permissions:
@@ -34,7 +36,8 @@ jobs:
     permissions:
       contents: write
     outputs:
-      commit: ${{ steps.archive.outputs.commit }}
+      commit: ${{ steps.archive.outputs.commit || steps.plan.outputs.commit }}
+      publish: ${{ steps.plan.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,11 +46,29 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci
-      - run: npm run build
-      - run: npm test
-      - run: npm run pack -- "$RUNNER_TEMP/semi-plugin-pack"
+      - name: Select plugin releases
+        id: plan
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+        run: |
+          head=$(git ls-remote origin refs/heads/dist)
+          if [[ -n "$head" ]]; then
+            git fetch --depth=1 origin refs/heads/dist
+            git show FETCH_HEAD:index.json > "$RUNNER_TEMP/semi-dist-index.json"
+            printf 'commit=%s\n' "$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+          node scripts/plan-release.cjs "$RUNNER_TEMP/semi-dist-index.json" "$RELEASE_EVENT" >> "$GITHUB_OUTPUT"
+      - if: steps.plan.outputs.pack != '[]'
+        run: npm run build
+      - if: steps.plan.outputs.pack != '[]'
+        run: npm test
+      - if: steps.plan.outputs.pack != '[]'
+        env:
+          SEMI_RELEASE_PACKAGES: ${{ steps.plan.outputs.pack }}
+        run: npm run pack -- "$RUNNER_TEMP/semi-plugin-pack"
       - name: Write packages to dist
         id: archive
+        if: steps.plan.outputs.pack != '[]'
         env:
           DIST_TOKEN: ${{ github.token }}
         run: |
@@ -57,7 +78,7 @@ jobs:
           bash scripts/publish-dist.sh "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/semi-plugin-pack"
 
   publish:
-    if: vars.ENABLE_NPM_PUBLISH == 'true'
+    if: vars.ENABLE_NPM_PUBLISH == 'true' && needs.dist.outputs.publish != '[]'
     needs: dist
     runs-on: ubuntu-latest
     permissions:
@@ -78,6 +99,8 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci --ignore-scripts
       - run: node scripts/publish.cjs distribution "$RUNNER_TEMP/published.json" "$RUNNER_TEMP/plugin-previews"
+        env:
+          SEMI_RELEASE_PACKAGES: ${{ needs.dist.outputs.publish }}
       - uses: actions/create-github-app-token@v2
         id: pages-token
         with:

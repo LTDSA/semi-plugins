@@ -11,7 +11,7 @@ async function main() {
     fs.mkdirSync(output, { recursive: true });
     if (fs.readdirSync(output).length) throw new Error('Pack output directory must be empty');
     const entries = [];
-    for (const { cwd, pkg } of packages()) {
+    for (const { cwd, pkg } of packages(process.env.SEMI_RELEASE_PACKAGES)) {
         if (!semver.validRange(pkg.engines?.semi || 'invalid')) throw new Error(`Invalid engines.semi: ${pkg.name}`);
         const work = fs.mkdtempSync(path.join(os.tmpdir(), 'semi-npm-pack-'));
         try {

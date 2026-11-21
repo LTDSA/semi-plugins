@@ -5,6 +5,18 @@ const path = require('node:path');
 const os = require('node:os');
 const { stageDist, readIndex } = require('../scripts/stage-dist.cjs');
 const { releaseFile, integrity } = require('../scripts/release-files.cjs');
+const { planRelease } = require('../scripts/plan-release.cjs');
+
+test('release planning skips archived versions, packs new ones, and can retry publication', () => {
+    const name = '@semi-app/miplay';
+    const current = [{ name, version: '1.0.0', description: 'Edited metadata' }, { name: '@semi-app/other', version: '2.0.0' }];
+    const archived = [{ id: name, version: '1.0.0' }, { id: '@semi-app/other', version: '2.0.0' }];
+    assert.deepEqual(planRelease(current, archived), { pack: [], publish: [] });
+    assert.deepEqual(planRelease(current, archived, true), { pack: [], publish: [name, '@semi-app/other'] });
+    current[0].version = '1.0.1';
+    assert.deepEqual(planRelease(current, archived), { pack: [name], publish: [name] });
+    assert.deepEqual(planRelease(current, []), { pack: [name, '@semi-app/other'], publish: [name, '@semi-app/other'] });
+});
 
 test('dist preserves prior versions and rejects replacement of the same version', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'semi-dist-test-'));

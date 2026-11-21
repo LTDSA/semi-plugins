@@ -17,6 +17,6 @@ npm run pack
 
 首次由对 `@semi-app` 有发布权限的维护者登录 npm 后发布 `dist` 分支中的原始文件。可用 `git clone --depth 1 --single-branch --branch dist https://github.com/LTDSA/semi-plugins.git semi-plugins-dist` 下载发行分支，再执行 `npm publish ./semi-plugins-dist/tgz/miplay-1.0.0.tgz --access public --ignore-scripts`。
 
-随后将 npm Trusted Publisher 绑定到 `LTDSA/semi-plugins` 的 `plugins.yml` 并允许直接发布，配置 GitHub App 凭据 `RELEASES_APP_ID` / `RELEASES_APP_PRIVATE_KEY`（仅目标仓库 Contents 写权限），最后设置仓库变量 `ENABLE_NPM_PUBLISH=true`。Pages 由 semi-releases 自己部署。重跑已发布版本会校验并补同步目录。Trusted Publisher 需在配置后两天内经工作流实际发布一个新版本，才会验证并绑定配置。
+随后将 npm Trusted Publisher 绑定到 `LTDSA/semi-plugins` 的 `plugins.yml` 并允许直接发布，配置 GitHub App 凭据 `RELEASES_APP_ID` / `RELEASES_APP_PRIVATE_KEY`（仅目标仓库 Contents 写权限），最后设置仓库变量 `ENABLE_NPM_PUBLISH=true`。Pages 由 semi-releases 自己部署。主分支的插件 `package.json` 有改动时检查 `dist/index.json`，只打包和发布尚未归档的包名及版本。只修改 README 不触发自动发布。手动运行工作流可复用已归档的安装包，补发到 npm 或补同步目录。Trusted Publisher 需在配置后两天内经工作流实际发布一个新版本，才会验证并绑定配置。
 
 构建依赖快照见 [vendor](vendor/README.md)。

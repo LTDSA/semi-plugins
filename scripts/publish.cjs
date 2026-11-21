@@ -21,7 +21,7 @@ async function main() {
     if (!dist || !output || !previews) throw new Error('Usage: publish.cjs <dist-checkout> <published-json> <preview-directory>');
     const entries = new Map(readIndex(path.join(dist, 'index.json')).map(entry => [entry.file, entry]));
     const published = [];
-    for (const { pkg } of packages()) {
+    for (const { pkg } of packages(process.env.SEMI_RELEASE_PACKAGES)) {
         const file = releaseFile(pkg.name, pkg.version);
         const entry = entries.get(file);
         if (entry?.id !== pkg.name || entry.version !== pkg.version) throw new Error(`Missing dist entry: ${file}`);

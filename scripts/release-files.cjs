@@ -12,8 +12,8 @@ function releaseFile(id, version) {
     return `tgz/${id.split('/').at(-1)}-${version}.tgz`;
 }
 
-function packages() {
-    return fs.readdirSync(path.join(root, 'packages')).sort().flatMap(dir => {
+function packages(selection) {
+    const workspace = fs.readdirSync(path.join(root, 'packages')).sort().flatMap(dir => {
         const cwd = path.join(root, 'packages', dir);
         const file = path.join(cwd, 'package.json');
         if (!fs.existsSync(file)) return [];
@@ -23,6 +23,14 @@ function packages() {
         if (pkg.name.split('/').at(-1) !== dir) throw new Error(`Package directory must match the final name segment: ${pkg.name}`);
         return [{ cwd, pkg }];
     });
+    if (selection === undefined) return workspace;
+    const names = JSON.parse(selection);
+    const available = new Set(workspace.map(({ pkg }) => pkg.name));
+    if (!Array.isArray(names) || new Set(names).size !== names.length || names.some(name => !available.has(name))) {
+        throw new Error('Invalid release package selection');
+    }
+    const selected = new Set(names);
+    return workspace.filter(({ pkg }) => selected.has(pkg.name));
 }
 
 function integrity(file) {
