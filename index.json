@@ -2,7 +2,7 @@
   "version": 1,
   "packages": [
     {
-      "file": "packages/miplay/1.0.0.tgz",
+      "file": "tgz/miplay-1.0.0.tgz",
       "id": "miplay",
       "version": "1.0.0",
       "semi": ">=0.7.2",
