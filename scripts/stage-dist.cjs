@@ -12,26 +12,45 @@ function readIndex(file) {
 function stageDist(source, destination) {
     const output = path.join(destination, 'index.json');
     const previous = fs.existsSync(output) ? readIndex(output) : [];
-    const existing = new Map(previous.map(item => [releaseFile(item.id, item.version), item]));
-    const incoming = readIndex(path.join(source, 'index.json'));
-    for (const item of incoming) {
+    const existing = new Map();
+    const migrations = [];
+    const copies = [];
+    for (const item of previous) {
+        const file = releaseFile(item.id, item.version);
+        const legacy = `packages/${item.id}/${item.version}.tgz`;
+        if (item.file !== file && item.file !== legacy) throw new Error(`Invalid dist path: ${item.file}`);
+        if (existing.has(file)) throw new Error(`Duplicate archive filename: ${file}`);
+        const archived = path.join(destination, item.file);
+        if (item.file === legacy) {
+            const target = path.join(destination, file);
+            if (fs.existsSync(target) || integrity(archived) !== item.integrity) throw new Error(`Cannot migrate archive: ${item.file}`);
+            migrations.push({ from: archived, to: target });
+        }
+        existing.set(file, { item: { ...item, file }, archived });
+    }
+    for (const item of readIndex(path.join(source, 'index.json'))) {
         const file = releaseFile(item.id, item.version);
         const from = path.join(source, file);
         const to = path.join(destination, file);
         if (item.file !== file || integrity(from) !== item.integrity) throw new Error(`Invalid package: ${file}`);
         const old = existing.get(file);
         if (old) {
-            if (old.integrity !== item.integrity || integrity(to) !== old.integrity) {
+            if (old.item.id !== item.id || old.item.version !== item.version) throw new Error(`Duplicate archive filename: ${file}`);
+            if (old.item.integrity !== item.integrity || integrity(old.archived) !== old.item.integrity) {
                 throw new Error(`An existing version cannot be replaced: ${item.id}@${item.version}`);
             }
-            existing.set(file, item);
+            existing.set(file, { ...old, item });
             continue;
         }
-        fs.mkdirSync(path.dirname(to), { recursive: true });
-        fs.copyFileSync(from, to, fs.constants.COPYFILE_EXCL);
-        existing.set(file, item);
+        if (fs.existsSync(to)) throw new Error(`Unindexed archive already exists: ${file}`);
+        copies.push({ from, to });
+        existing.set(file, { item, archived: from });
     }
-    const packages = [...existing.values()].sort((a, b) => a.id.localeCompare(b.id, 'en') || semver.compare(a.version, b.version));
+    fs.mkdirSync(path.join(destination, 'tgz'), { recursive: true });
+    for (const { from, to } of migrations) fs.renameSync(from, to);
+    for (const { from, to } of copies) fs.copyFileSync(from, to, fs.constants.COPYFILE_EXCL);
+    const packages = [...existing.values()].map(entry => entry.item)
+        .sort((a, b) => a.id.localeCompare(b.id, 'en') || semver.compare(a.version, b.version));
     fs.writeFileSync(output, JSON.stringify({ version: 1, packages }, null, 2) + '\n');
 }
 

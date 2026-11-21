@@ -9,7 +9,7 @@ function releaseFile(id, version) {
     if (!/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(id)
         || id.split('/').some(part => ['.', '..', '@.', '@..'].includes(part))
         || semver.valid(version) !== version) throw new Error('Invalid archive identity');
-    return `packages/${id}/${version}.tgz`;
+    return `tgz/${id.replace(/^@/, '').replace('/', '-')}-${version}.tgz`;
 }
 
 function packages() {

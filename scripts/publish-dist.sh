@@ -14,7 +14,7 @@ if [[ -n "$head" ]]; then
 fi
 
 node "$(dirname "$0")/stage-dist.cjs" "$packed" "$dist"
-git -C "$dist" add -- index.json packages
+git -C "$dist" add -A -- .
 if ! git -C "$dist" diff --cached --quiet; then
     git -C "$dist" -c user.name=semi-plugins -c user.email=semi-plugins@users.noreply.github.com commit -m 'Archive community plugin packages'
     git -C "$dist" push "$remote" HEAD:refs/heads/dist
