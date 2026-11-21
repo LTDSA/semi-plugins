@@ -71,7 +71,7 @@ function iconFiles(id) {
     if (!/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(id) || id.split('/').some(part => ['.', '..', '@.', '@..'].includes(part))) {
         throw new Error('Invalid icon identity');
     }
-    return Object.fromEntries(themes.map(theme => [theme, `./icons/${id}/${theme}.webp`]));
+    return Object.fromEntries(themes.map(theme => [theme, `./icons/${id.split('/').at(-1)}/${theme}.webp`]));
 }
 
 async function generateIconPreviews(archive, output, id) {

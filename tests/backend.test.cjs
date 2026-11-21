@@ -8,7 +8,7 @@ test('SDK backend validates the bound account and releases private handlers', as
     let allowed = true;
     const handlers = new Map();
     const api = {
-        getBackgroundInfo: async () => ({ plugin: { id: 'miplay' }, target: { accountId: 'test' }, development: false }),
+        getBackgroundInfo: async () => ({ plugin: { id: '@semi-app/miplay' }, target: { accountId: 'test' }, development: false }),
         getProviderState: async () => ({ defaultAccountId: 'test', accounts: allowed ? [{ id: 'test', userId: '123' }] : [] }),
         handleBackgroundCall: (name, handler) => { handlers.set(name, handler); return () => handlers.delete(name); },
         onEvent: () => () => {},

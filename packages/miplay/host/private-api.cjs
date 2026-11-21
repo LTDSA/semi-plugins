@@ -1,5 +1,5 @@
 const { assert } = require('./errors.cjs');
-const OWNER = 'miplay';
+const OWNER = require('../package.json').name;
 function registerPrivateAPI(host, servicesFor) {
     return host.registerPrivateHandlers(OWNER, Object.fromEntries(['getSpeakers', 'play', 'stop', 'setVolume'].map(method => ['mina.' + method, async (params, { instance, signal }) => {
         const keys = method === 'getSpeakers' ? ['skipCloud'] : method === 'play' ? ['id', 'url'] : method === 'stop' ? ['id'] : ['id', 'volume'];
@@ -22,4 +22,4 @@ function notifyAccount(host, instance, servicesFor) {
     if (instance.minaAccountId !== undefined && instance.minaAccountId !== accountId) host.emit(instance, 'mina.account.changed', { accountId });
     instance.minaAccountId = accountId;
 }
-module.exports = { registerPrivateAPI, notifyAccount };
+module.exports = { OWNER, registerPrivateAPI, notifyAccount };

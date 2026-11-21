@@ -1,5 +1,5 @@
 {
-    "name": "miplay",
+    "name": "@semi-app/miplay",
     "version": "1.0.0",
     "description": "连接智能音箱",
     "author": "LTDSA",

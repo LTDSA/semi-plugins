@@ -17,8 +17,8 @@ test('package and standard icons generate transparent WebP for both themes', asy
             const archive = path.join(root, 'plugin.tgz');
             execFileSync('tar', ['-czf', archive, 'package'], { cwd: root });
             const { iconUrl, color } = await generateIconPreviews(archive, root, name);
-            assert.equal(iconUrl.light, './icons/' + name + '/light.webp');
-            assert.equal(iconUrl.dark, './icons/' + name + '/dark.webp');
+            assert.equal(iconUrl.light, './icons/' + name.split('/').at(-1) + '/light.webp');
+            assert.equal(iconUrl.dark, './icons/' + name.split('/').at(-1) + '/dark.webp');
             assert.equal(color, 'purple');
             const bytes = {};
             for (const [theme, file] of Object.entries(iconUrl)) {

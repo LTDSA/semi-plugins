@@ -9,7 +9,7 @@ function releaseFile(id, version) {
     if (!/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(id)
         || id.split('/').some(part => ['.', '..', '@.', '@..'].includes(part))
         || semver.valid(version) !== version) throw new Error('Invalid archive identity');
-    return `tgz/${id.replace(/^@/, '').replace('/', '-')}-${version}.tgz`;
+    return `tgz/${id.split('/').at(-1)}-${version}.tgz`;
 }
 
 function packages() {
@@ -20,6 +20,7 @@ function packages() {
         const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
         if (!pkg.semi || pkg.private) return [];
         releaseFile(pkg.name, pkg.version);
+        if (pkg.name.split('/').at(-1) !== dir) throw new Error(`Package directory must match the final name segment: ${pkg.name}`);
         return [{ cwd, pkg }];
     });
 }

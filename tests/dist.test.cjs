@@ -60,3 +60,32 @@ test('dist migrates existing package filenames without replacing the bytes', () 
         assert.deepEqual(readIndex(index), [{ ...plugin, file: next }]);
     } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
+
+test('dist replaces retired unscoped releases with the scoped package at its short filename', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'semi-dist-scope-'));
+    try {
+        const dist = path.join(root, 'dist');
+        const source = path.join(root, 'packed');
+        const filename = 'tgz/miplay-1.0.0.tgz';
+        assert.equal(releaseFile('@semi-app/miplay', '1.0.0'), filename);
+        function fixture(dir, id, bytes) {
+            const output = path.join(dir, filename);
+            fs.mkdirSync(path.dirname(output), { recursive: true });
+            fs.writeFileSync(output, bytes);
+            fs.writeFileSync(path.join(dir, 'index.json'), JSON.stringify({
+                version: 1, packages: [{ id, version: '1.0.0', file: filename, integrity: integrity(output) }],
+            }));
+        }
+        fixture(dist, 'miplay', 'unscoped bytes');
+        fixture(source, '@semi-app/miplay', 'scoped bytes');
+        stageDist(source, dist);
+        const index = path.join(dist, 'index.json');
+        const entries = readIndex(index);
+        assert.equal(entries.find(item => item.id === '@semi-app/miplay').file, filename);
+        assert.deepEqual(entries.map(item => item.id), ['@semi-app/miplay']);
+        assert(!fs.existsSync(path.join(dist, 'archive/unscoped/miplay-1.0.0.tgz')));
+        assert.equal(fs.readFileSync(path.join(dist, filename), 'utf8'), 'scoped bytes');
+        stageDist(source, dist);
+        assert.deepEqual(readIndex(index), entries);
+    } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
