@@ -1,0 +1,20 @@
+{
+    "version": "mihome-11.8.707-spec-1.1.10",
+    "url": "https://fga1.market.xiaomi.com/download/AppStore/04bd14789cc444250b1939bfcfd868666ba230bfd/com.xiaomi.smarthome.apk",
+    "size": 239364085,
+    "sha256": "60faf083a7f1874423b77d034d2fbd11ff7f97aafeb656f35333dbd5e498ac28",
+    "sdk": {
+        "entry": "assets/plugin_rn_sdk/sdk.bundle",
+        "sha256": "2e210a8c0bb35039be8f01192d45b1059455fd3c352ffacf8e02a278714c6c72",
+        "scriptSha256": "71013b827395481bf2fb1caf92f37dcac74512695027bd4ba8359bcdfebd34c3"
+    },
+    "plugin": {
+        "model": "miot.switch.spec",
+        "packageName": "miot.plugin.spec",
+        "pluginId": 1006883,
+        "md5": "bd71914a60aec55560815d5e2901f85f",
+        "entry": "assets/rn_plugins/miot.switch.spec.zip",
+        "sha256": "0a0fa3b0a5889db5237b4649d6d9bc53d86276c33f85a701629d0822b8f412e1",
+        "scriptSha256": "38f58139ff556c9f0e576962a7e51f885cf508da626e939d9516344d014aa11f"
+    }
+}

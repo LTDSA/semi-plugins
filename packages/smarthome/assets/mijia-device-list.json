@@ -1,0 +1,12 @@
+{
+    "ssid": "<unknown ssid>",
+    "bssid": "02:00:00:00:00:00",
+    "getVirtualModel": true,
+    "getHuamiDevices": 1,
+    "get_split_device": true,
+    "support_smart_home": true,
+    "get_cariot_device": true,
+    "get_third_device": true,
+    "get_phone_device": true,
+    "get_miwear_device": true
+}

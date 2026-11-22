@@ -1,0 +1,128 @@
+/* 初始标题位置与实用工具页一致；顶部留白属于插件滚动区域，可随内容滚走。 */
+.smart-devices-page {
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--semi-embedded-content-top, 32px) 0 32px;
+}
+.smart-devices-container {
+    box-sizing: border-box;
+    width: 96%;
+    padding: 0 8px;
+    margin: 0 auto;
+    font-size: 14px;
+}
+.smart-devices-page[data-size='medium'] .smart-devices-container { width: 94%; font-size: 14.5px; }
+.smart-devices-page[data-size='large'] .smart-devices-container { width: 92%; font-size: 15px; }
+.smart-devices-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.smart-home-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--semi-color-text-0);
+    font: inherit;
+    cursor: pointer;
+}
+.smart-home-select { min-width: 0; }
+.smart-home-select:focus-visible { outline: none; }
+.smart-home-switch[data-disabled='true'] { cursor: default; }
+.smart-home-switch .semi-typography { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.smart-home-switch .semi-icon { font-size: 16px; flex: none; }
+.smart-devices-header > .semi-button { height: 24px; flex: none; }
+.smart-device-settings-list + .smart-device-settings-list { margin-top: 16px; }
+.smart-device-settings-list .smart-device-card-size-setting { padding-top: 8px; padding-bottom: 8px; }
+.smart-devices-tabs .semi-tabs-content { padding: 16px 0 0; }
+.smart-devices-content { container-type: inline-size; }
+.smart-devices-grid {
+    --smart-device-card-height: calc(98px + 1.5em);
+    --smart-device-card-gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 165px), 1fr));
+    gap: var(--smart-device-card-gap);
+}
+.smart-device-slot { min-width: 0; height: var(--smart-device-card-height); }
+.smart-device-slot[data-card-size='large'] { grid-column: span 2; }
+.smart-device-slot[data-card-size='small'] { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: var(--smart-device-card-gap); }
+.smart-device-slot > .smart-device-card { height: 100%; }
+.smart-device-card { min-width: 0; box-sizing: border-box; }
+@container (width < 342px) {
+    .smart-device-slot[data-card-size='large'] { grid-column: span 1; }
+}
+.smart-device-card.is-openable { cursor: pointer; }
+.smart-device-card.is-openable:focus-visible { outline: none; }
+.smart-device-dialog .semi-modal { max-width: none; }
+body.semi-device-plugin-overlay,
+body.semi-smart-device-settings-overlay { background: transparent !important; }
+.smart-device-dialog .semi-modal-content { padding: 0; border: 0; overflow: hidden; border-radius: 20px; }
+.smart-device-dialog .semi-modal-body-wrapper { margin: 0; }
+.smart-device-dialog .semi-modal-body { margin: 0; padding: 0; }
+.smart-device-dialog-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.smart-device-screen { position: relative; width: 100%; aspect-ratio: 390 / 844; overflow: hidden; background: var(--semi-color-bg-0); }
+.smart-device-plugin-frame { position: absolute; inset: 0 auto auto 0; display: block; width: 390px; height: 844px; border: 0; transform-origin: top left; }
+.smart-device-plugin-status { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center; background: var(--semi-color-bg-0); color: var(--semi-color-text-1); }
+.smart-device-card .semi-card-body { padding: 14px; }
+.smart-device-slot .semi-card-body { box-sizing: border-box; height: 100%; display: flex; flex-direction: column; }
+.smart-device-text { min-width: 0; }
+.smart-device-card[data-card-size='small'] .semi-card-body { flex-direction: row; align-items: center; gap: 10px; padding: 6px 14px; }
+.smart-device-card[data-card-size='small'] .smart-device-top { flex: none; }
+.smart-device-card[data-card-size='small'] .smart-device-text { flex: 1; }
+.smart-device-card[data-card-size='small'] .smart-device-image { width: 32px; height: 32px; margin-bottom: 0; }
+.smart-device-card[data-card-size='small'] .smart-device-label { font-size: 13px; line-height: 18px; }
+.smart-device-card[data-card-size='small'] .smart-device-room { line-height: 16px; }
+.smart-device-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.smart-device-power-wrap { display: inline-flex; }
+.smart-device-power.semi-button { width: 32px; height: 32px; padding: 0; border-radius: 50%; }
+.smart-device-image {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 16px;
+}
+.smart-device-image img { width: 100%; height: 100%; object-fit: contain; }
+.smart-device-image-control { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.smart-device-image-control:disabled { cursor: default; }
+.smart-device-image-control:focus-visible { outline: none; }
+.smart-aggregation-image .smart-aggregation-icon-dark { display: none; }
+body[theme-mode='dark'] .smart-aggregation-image .smart-aggregation-icon-light { display: none; }
+body[theme-mode='dark'] .smart-aggregation-image .smart-aggregation-icon-dark { display: block; }
+.smart-device-image.is-placeholder img { box-sizing: border-box; padding: 6px; border-radius: 10px; background: rgb(var(--semi-green-1)); }
+.smart-device-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; margin-bottom: 2px; }
+.smart-device-label.is-offline { color: var(--semi-color-text-3); }
+.smart-device-room { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; color: var(--semi-color-text-2); }
+.smart-devices-loading { display: grid; place-items: center; height: 100%; min-height: 200px; }
+.smart-devices-error { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; min-height: 160px; color: var(--semi-color-danger); }
+.smart-devices-content > .semi-empty { padding: 48px 16px; }
+/* 透出宿主原生材质；旧版 Windows 使用宿主提供的不透明主题底色。 */
+body:has(.smart-devices-tray) { background-color: transparent; }
+.smart-devices-page.smart-devices-tray { height: 100dvh; padding: 0 14px 14px; overflow: hidden; display: flex; flex-direction: column; }
+.smart-devices-page.smart-devices-tray .smart-devices-container { width: 100%; max-width: none; flex: 1; min-height: 0; padding: 0; font-size: 14px; display: flex; flex-direction: column; }
+.smart-devices-tray .smart-devices-grid { --smart-device-card-height: 108px; --smart-device-card-gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.smart-devices-tray .smart-device-slot[data-card-size='large'] { grid-column: span 2; }
+.smart-devices-tray .smart-device-card { border: 0; border-radius: 16px; background-color: rgba(225, 228, 234, 0.56); box-shadow: none; }
+.smart-devices-tray .smart-device-card .semi-card-body { padding: 10px; }
+.smart-devices-tray .smart-device-card[data-card-size='small'] .semi-card-body { padding: 8px 14px; }
+.smart-devices-tray .smart-device-label { margin-bottom: 0; }
+body[theme-mode='dark'] .smart-devices-tray .smart-device-card { background-color: rgba(88, 90, 98, 0.56); }
+.smart-devices-tray .smart-device-card.is-on,
+body[theme-mode='dark'] .smart-devices-tray .smart-device-card.is-on { background-color: #fff; }
+.smart-devices-tray .smart-device-card.is-on .smart-device-label { color: #1c1f23; }
+.smart-devices-tray .smart-device-card.is-on .smart-device-room { color: rgba(28, 31, 35, 0.62); }
+.smart-devices-tray .smart-devices-header { margin-bottom: 14px; flex: none; }
+/* 滚动视口延伸至面板底边，14px 底部留白随内容滚动，不形成固定的截断带。 */
+.smart-tray-scroll { flex: 1; min-height: 0; margin-bottom: -14px; padding-bottom: 14px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.smart-tray-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.smart-device-download-progress { display: flex; flex-direction: column; gap: 12px; }
+.smart-device-download-size { color: var(--semi-color-text-2); font-size: 12px; }

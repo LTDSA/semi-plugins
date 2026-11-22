@@ -1,0 +1,102 @@
+{
+    "name": "@semi-app/smarthome",
+    "version": "1.0.0",
+    "description": "查看与控制米家智能设备",
+    "author": "LTDSA",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "prebuild": "npm --prefix runtime ci --ignore-scripts",
+        "build": "node build.cjs",
+        "generate:miot-api": "node generate-mijia-sdk-api.cjs"
+    },
+    "semi": {
+        "displayName": "智能设备",
+        "icon": "./dist/icon.svg",
+        "color": "green",
+        "permissions": [
+            "ui.tray.create"
+        ],
+        "requires": [],
+        "background": "dist/background.html",
+        "activationEvents": [
+            "onReady"
+        ],
+        "contributes": {
+            "views": [
+                {
+                    "id": "main",
+                    "entry": "dist/index.html",
+                    "placement": "main",
+                    "keepAlive": false
+                },
+                {
+                    "id": "device-plugin",
+                    "entry": "dist/device-plugin.html",
+                    "placement": "overlay",
+                    "keepAlive": false
+                },
+                {
+                    "id": "settings",
+                    "entry": "dist/settings.html",
+                    "placement": "overlay",
+                    "keepAlive": false
+                },
+                {
+                    "id": "tray",
+                    "entry": "dist/tray.html",
+                    "placement": "tray",
+                    "keepAlive": true,
+                    "window": {
+                        "width": 320,
+                        "height": 530
+                    }
+                }
+            ],
+            "commands": [
+                {
+                    "id": "get-tray",
+                    "title": "读取智能设备托盘状态"
+                },
+                {
+                    "id": "set-tray",
+                    "title": "设置智能设备托盘"
+                }
+            ]
+        },
+        "permissionReasons": {
+            "ui.tray.create": "用于从菜单栏快捷控制设备。"
+        },
+        "scope": "account",
+        "services": [
+            {
+                "contract": "xiaomi.auth",
+                "version": 1
+            }
+        ]
+    },
+    "dependencies": {
+        "buffer": "^6.0.3",
+        "crypto-js": "^4.2.0",
+        "fflate": "^0.8.2",
+        "path-browserify": "^1.0.1"
+    },
+    "devDependencies": {
+        "@semi-app/plugin-sdk": "0.7.2",
+        "@semi/plugin-ui": "1.0.0",
+        "@vitejs/plugin-react": "^4.7.0",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "vite": "^4.5.14",
+        "esbuild": "0.18.20"
+    },
+    "engines": {
+        "semi": ">=0.7.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LTDSA/semi-plugins.git",
+        "directory": "packages/smarthome"
+    }
+}

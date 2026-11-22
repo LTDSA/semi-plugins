@@ -1,0 +1,26 @@
+{
+    "ircontroller": {
+        "getList": { "api": "/v2/irdevice/controllers", "mode": "read", "target": "parent" },
+        "getCategories": { "api": "/v2/ircode/categories", "mode": "read" },
+        "queryArea": { "api": "/v2/ircode/area/area_id", "mode": "read" },
+        "getLineups": { "api": "/v2/ircode/area/lineups", "mode": "read" },
+        "getCities": { "api": "/v2/ircode/area/province/cities", "mode": "read" },
+        "getProvinces": { "api": "/v2/ircode/area/provinces/china", "mode": "read" },
+        "getAreas": { "api": "/v2/ircode/area/city/areas", "mode": "read" },
+        "getIPTVBrands": { "api": "/v2/ircode/iptv/brands", "mode": "read" },
+        "getBrands": { "api": "/v2/ircode/category/brands", "mode": "read" },
+        "controllerAdd": { "api": "/v2/irdevice/controller/add", "mode": "write", "target": "parent" },
+        "setKeys": { "api": "/v2/irdevice/controller/keys/set", "mode": "write", "target": "unbound" },
+        "sendKey": { "api": "/v2/irdevice/send_key", "mode": "write", "target": "device" },
+        "controllerDel": { "api": "/v2/irdevice/controller/del", "mode": "write", "target": "device" },
+        "controllerUpdate": { "api": "/v2/irdevice/controller/update", "mode": "write", "target": "device" },
+        "getKeys": { "api": "/v2/irdevice/controller/keys", "mode": "read", "target": "device" },
+        "keyUpdate": { "api": "/v2/irdevice/controller/key/update", "mode": "write", "target": "device" },
+        "keyDel": { "api": "/v2/irdevice/controller/key/del", "mode": "write", "target": "device" },
+        "keyClick": { "api": "/v2/irdevice/controller/key/click", "mode": "write", "target": "device" },
+        "getIrCodeFunctions": { "api": "/v2/ircode/controller/functions", "mode": "read" },
+        "getIrCodeKeys": { "api": "/v2/ircode/controller/keys", "mode": "read" },
+        "getIrCodeInfo": { "api": "/v2/irdevice/controller/info", "mode": "read", "target": "device" },
+        "getIrCodeBrand": { "api": "/v2/ircode/brand", "mode": "read" }
+    }
+}
