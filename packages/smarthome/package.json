@@ -1,6 +1,6 @@
 {
     "name": "@semi-app/smarthome",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "查看与控制米家智能设备",
     "author": "LTDSA",
     "files": [
@@ -62,6 +62,14 @@
                 {
                     "id": "set-tray",
                     "title": "设置智能设备托盘"
+                }
+            ],
+            "sidebar": [
+                {
+                    "id": "smart-devices",
+                    "title": "智能设备",
+                    "view": "main",
+                    "icon": "switch"
                 }
             ]
         },
