@@ -12,6 +12,18 @@
       "icon": "music",
       "color": "purple",
       "integrity": "sha512-2kkuf4KCcJG6mISLmKHFx/mD2wh5HSwKDfGozKrdN9M3FTJ2EtSQ548awoSr0QK4OQiYrOYKPidd8SPF4nOg5g=="
+    },
+    {
+      "file": "tgz/smarthome-1.0.0.tgz",
+      "id": "@semi-app/smarthome",
+      "version": "1.0.0",
+      "semi": ">=0.7.2",
+      "name": "智能设备",
+      "author": "LTDSA",
+      "description": "查看与控制米家智能设备",
+      "icon": "./dist/icon.svg",
+      "color": "green",
+      "integrity": "sha512-CdvfQVd2eNF/JFJNERrnIJbO8f7xbSc3G4xLU9bRhi+HCseyvECenfge0UMjLCPJtqMpp280GLY5gpbwfg3Gqw=="
     }
   ]
 }
