@@ -98,10 +98,14 @@ jobs:
           node-version: '24'
           registry-url: https://registry.npmjs.org
       - run: npm ci --ignore-scripts
-      - run: node scripts/publish.cjs distribution "$RUNNER_TEMP/published.json" "$RUNNER_TEMP/plugin-previews"
+      - name: Publish each package
+        id: npm-publish
+        continue-on-error: true
+        run: node scripts/publish.cjs distribution "$RUNNER_TEMP/published.json" "$RUNNER_TEMP/plugin-previews"
         env:
           SEMI_RELEASE_PACKAGES: ${{ needs.dist.outputs.publish }}
-      - uses: actions/create-github-app-token@v2
+      - if: steps.npm-publish.outputs.published != '' && steps.npm-publish.outputs.published != '0'
+        uses: actions/create-github-app-token@v2
         id: pages-token
         with:
           app-id: ${{ vars.RELEASES_APP_ID }}
@@ -109,17 +113,24 @@ jobs:
           owner: LTDSA
           repositories: semi-releases
           permission-contents: write
-      - uses: actions/checkout@v4
+      - if: steps.pages-token.outcome == 'success'
+        uses: actions/checkout@v4
         with:
           repository: LTDSA/semi-releases
           ref: main
           path: semi-releases
           token: ${{ steps.pages-token.outputs.token }}
-      - run: node scripts/sync-registry.cjs "$RUNNER_TEMP/published.json" semi-releases/docs/public/plugins/registry.json "$RUNNER_TEMP/plugin-previews"
+      - if: steps.pages-token.outcome == 'success'
+        run: node scripts/sync-registry.cjs "$RUNNER_TEMP/published.json" semi-releases/docs/public/plugins/registry.json "$RUNNER_TEMP/plugin-previews"
       - name: Sync registry for Pages
+        if: steps.pages-token.outcome == 'success'
         working-directory: semi-releases
         run: |
           git add -- docs/public/plugins
           if git diff --cached --quiet; then exit 0; fi
           git -c user.name=semi-plugins -c user.email=semi-plugins@users.noreply.github.com commit -m 'Update community plugin registry'
           git push origin HEAD:main
+
+      - name: Report incomplete npm release
+        if: always() && steps.npm-publish.outcome == 'failure'
+        run: exit 1

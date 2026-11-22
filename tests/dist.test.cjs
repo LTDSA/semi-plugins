@@ -18,6 +18,14 @@ test('release planning skips archived versions, packs new ones, and can retry pu
     assert.deepEqual(planRelease(current, []), { pack: [name, '@semi-app/other'], publish: [name, '@semi-app/other'] });
 });
 
+test('releasing two bumped plugins selects both archives and retries both from dist', () => {
+    const current = [{ name: '@semi-app/miplay', version: '1.0.1' }, { name: '@semi-app/smarthome', version: '1.0.2' }];
+    const archived = [{ id: '@semi-app/miplay', version: '1.0.0' }, { id: '@semi-app/smarthome', version: '1.0.1' }];
+    const names = current.map(({ name }) => name);
+    assert.deepEqual(planRelease(current, archived), { pack: names, publish: names });
+    assert.deepEqual(planRelease(current, current.map(({ name: id, version }) => ({ id, version })), true), { pack: [], publish: names });
+});
+
 test('dist preserves prior versions and rejects replacement of the same version', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'semi-dist-test-'));
     function packed(version, content) {
