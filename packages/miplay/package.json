@@ -1,6 +1,6 @@
 {
     "name": "@semi-app/miplay",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "连接智能音箱",
     "author": "LTDSA",
     "files": [
@@ -12,7 +12,8 @@
     },
     "semi": {
         "displayName": "音频互联",
-        "icon": "music",
+        "icon": "./dist/icon.svg",
+        "iconDark": "./dist/icon-dark.svg",
         "color": "purple",
         "permissions": [
             "runtime.node",
