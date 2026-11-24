@@ -4,7 +4,7 @@
     box-sizing: border-box;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: var(--semi-embedded-content-top, 32px) 0 32px;
+    padding: calc(var(--semi-embedded-content-top, 32px) + 14px) 0 32px;
 }
 .smart-devices-container {
     box-sizing: border-box;
