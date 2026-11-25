@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { semi } from './api.mjs';
-import { Button, Modal, Progress, Spin, Toast } from '@semi/plugin-ui/ui.js';
+import { Button, Modal, Progress, Toast } from '@semi/plugin-ui/ui.js';
 import { createDevicePluginBridge } from './device-plugin-bridge.mjs';
 import { createDevicePluginLoader } from './device-plugin-loader.mjs';
 
@@ -81,13 +81,17 @@ export default function DevicePluginDialog({ device, visible = true, onClose, af
         </Modal>;
     }
     const failure = state.error || error;
+    const progress = state.deviceProgress;
+    const downloadingPlugin = progress?.phase === 'download';
     return <Modal ref={pluginDialogRef} visible={visible} motion centered title={null} footer={null} closable={false} maskClosable onCancel={requestClose} afterClose={afterClose}
         className="smart-device-dialog" width="min(390px, calc((100dvh - 48px) * 0.4620853), calc(100vw - 48px))" bodyStyle={{ padding: 0 }}>
         <span id="semi-modal-title" className="smart-device-dialog-label">{device.name}</span>
         <div className="smart-device-screen">
             {runtime && !error && <iframe ref={setFrame} src={runtime.url} title={device.name} sandbox="allow-scripts" allow="bluetooth" className="smart-device-plugin-frame" />}
             {(loading || failure) && <div className="smart-device-plugin-status" role={failure ? 'alert' : 'status'}>
-                {failure ? <><span>{failure}</span><Button onClick={() => loaderRef.current?.retry()}>重试</Button></> : <Spin size="large" />}
+                {failure ? <><span>{failure}</span><Button onClick={() => loaderRef.current?.retry()}>重试</Button></>
+                    : <Progress type="circle" size="small" showInfo={false} indeterminate={!downloadingPlugin}
+                        percent={downloadingPlugin ? progress.percent : 0} />}
             </div>}
         </div>
     </Modal>;

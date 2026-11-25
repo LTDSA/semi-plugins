@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { zipFile } = require('./mijia-plugin-assets.cjs');
+const { reportProgress, subscribeProgress } = require('./mijia-download-progress.cjs');
 const { assert, error } = require('../browser/contracts.cjs');
 const MAX_PACKAGE = 128 * 1024 * 1024;
 const digest = (value, algorithm = 'sha256') => crypto.createHash(algorithm).update(value).digest('hex');
@@ -51,10 +52,13 @@ function decodeBundle(data) {
     assert(ranges.every((range, i) => !i || range[0] >= ranges[i - 1][1]), '插件模块索引重叠', 'PLUGIN_INVALID');
     return Buffer.concat(modules.flatMap(source => [source, Buffer.from('\n')]).concat(stripNull(data.subarray(base, base + size))));
 }
-async function downloadPackage(metadata, file, signal) {
+async function downloadPackage(metadata, file, signal, onProgress) {
     check(signal);
     const { semi } = await import('@semi-app/plugin-sdk');
-    const result = await semi.downloadFile({ url: metadata.url, filePath: file, signal, maxBytes: metadata.size, redirect: 'manual' });
+    const result = await semi.downloadFile({
+        url: metadata.url, filePath: file, signal, maxBytes: metadata.size, redirect: 'manual',
+        onProgress: ({ loaded }) => onProgress({ phase: 'download', loaded, total: metadata.size }),
+    });
     assert(result.statusCode === 200 && result.bytesWritten === metadata.size, '设备插件下载失败', 'PLUGIN_DOWNLOAD_FAILED');
 }
 class MijiaDevicePackages {
@@ -82,7 +86,7 @@ class MijiaDevicePackages {
             return await this.inspect(directory, metadata);
         } catch { return null; }
     }
-    async ensure(model, metadataProvider, signal, expected) {
+    async ensure(model, metadataProvider, signal, expected, onProgress) {
         check(signal);
         const cached = await this.cached(model, expected);
         check(signal); if (cached && (!expected || cached.metadata.pluginId === expected.pluginId && cached.metadata.version === expected.version && cached.metadata.md5 === expected.md5)) return cached;
@@ -90,17 +94,18 @@ class MijiaDevicePackages {
         const jobKey = expected ? `${model}:${expected.pluginId}:${expected.version}:${expected.md5}` : model;
         if (!this.jobs.has(jobKey)) {
             const controller = new AbortController();
-            const job = { controller, clients: 0 };
-            job.promise = this.load(model, metadataProvider, controller.signal, expected).finally(() => { if (this.jobs.get(jobKey) === job) this.jobs.delete(jobKey); });
+            const job = { controller, clients: 0, listeners: new Set() };
+            job.promise = this.load(model, metadataProvider, controller.signal, expected, progress => reportProgress(job, progress)).finally(() => { if (this.jobs.get(jobKey) === job) this.jobs.delete(jobKey); });
             this.jobs.set(jobKey, job);
         }
         const job = this.jobs.get(jobKey); job.clients++;
         let abort;
         const interrupted = new Promise((_resolve, reject) => { abort = () => reject(error('CANCELLED', '加载已取消')); signal?.addEventListener('abort', abort, { once: true }); });
+        const off = subscribeProgress(job, onProgress);
         try { const result = await Promise.race([job.promise, interrupted]); check(signal); return result; }
-        finally { signal?.removeEventListener('abort', abort); if (--job.clients === 0 && this.jobs.get(jobKey) === job) job.controller.abort(); }
+        finally { off(); signal?.removeEventListener('abort', abort); if (--job.clients === 0 && this.jobs.get(jobKey) === job) job.controller.abort(); }
     }
-    async load(model, metadataProvider, signal, expected) {
+    async load(model, metadataProvider, signal, expected, onProgress = () => {}) {
         const metadata = pluginMetadata(await metadataProvider(signal), model);
         assert(!expected || metadata.pluginId === expected.pluginId && metadata.version === expected.version && metadata.md5 === expected.md5, '标准包版本已变化，请重试', 'CONTEXT_CHANGED');
         check(signal); await fs.promises.mkdir(this.root, { recursive: true });
@@ -115,7 +120,19 @@ class MijiaDevicePackages {
                 return standardAsset(directory, metadata);
             }
             const file = path.join(stage, 'package.zip');
-            await this.download(metadata, file, signal); check(signal);
+            let loaded = 0;
+            onProgress({ phase: 'download', loaded: 0, total: metadata.size });
+            try {
+                await this.download(metadata, file, signal, progress => {
+                    if (signal.aborted) return;
+                    loaded = progress.loaded;
+                    onProgress(progress);
+                });
+                loaded = metadata.size;
+            } finally {
+                if (!signal.aborted) onProgress({ phase: 'verify', loaded, total: metadata.size });
+            }
+            check(signal);
             const archive = await fs.promises.readFile(file);
             assert(archive.length === metadata.size && digest(archive, 'md5') === metadata.md5, '设备插件下载校验失败', 'PLUGIN_INVALID');
             const result = await this.inspect(stage, metadata, signal);

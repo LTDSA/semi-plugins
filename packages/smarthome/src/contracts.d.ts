@@ -1,5 +1,5 @@
 import type { JsonObject, JsonValue, CallOptions } from '@semi-app/plugin-sdk';
-export interface DevicePluginDownloadProgress { phase: 'metadata' | 'download' | 'verify' | 'extract' | 'ready'; resource: 'runtime'; loaded: number; total: number; percent: number; }
+export interface DevicePluginDownloadProgress { phase: 'metadata' | 'download' | 'verify' | 'extract' | 'ready'; resource: 'runtime' | 'device'; loaded: number; total: number; percent: number; }
 export interface DevicePluginOpenOptions extends CallOptions { download?: boolean; onDownloadProgress?: (progress: DevicePluginDownloadProgress) => void; }
 export type MijiaCardSize = 'small' | 'medium' | 'large';
 export interface MijiaDevice { did: string; name: string; model: string; isOnline: boolean; showOnHome: boolean; imageUrl?: string; cardSize?: MijiaCardSize; }

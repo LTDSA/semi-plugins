@@ -118,12 +118,12 @@ class MijiaPluginAssets {
         return this.loaded;
     }
     async getInfo() { return { version: await this.isReady() ? pinned.version : null }; }
-    async standardPackage(candidate, raw, metadata, signal) {
+    async standardPackage(candidate, raw, metadata, signal, onProgress) {
         // 只在官方 ZIP 完全相同时复用内置首页；新版本使用自己的版本目录。
         if (candidate.model === pinned.plugin.model && candidate.package === pinned.plugin.packageName && metadata.pluginId === pinned.plugin.pluginId && metadata.md5 === pinned.plugin.md5) {
             return { shared: true, metadata, project: { package_path: candidate.package }, directory: this.directory, resources: new Map() };
         }
-        return this.devices.ensure(candidate.model, async () => raw, signal, metadata);
+        return this.devices.ensure(candidate.model, async () => raw, signal, metadata, onProgress);
     }
     async ensure(signal, onProgress) {
         cancelled(signal);

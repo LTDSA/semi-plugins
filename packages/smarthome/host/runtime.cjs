@@ -51,8 +51,13 @@ class MijiaRuntime {
         await this.assets.ensure(signal, progress);
         assert(!signal.aborted && !instance.closed && this.generations.get(instance.id) === generation && this.mijia.getSessionRevision() === revision, '加载已取消或账号已变化', 'CONTEXT_CHANGED');
         if (!ready) reportReady(this.assets.downloadSize);
-        const selected = this.assets.launch ? await this.assets.launch.select({ mijia: this.mijia, assets: this.assets, context, did, signal }) : null;
-        const devicePackage = selected ? selected.devicePackage : this.assets.devices ? await this.assets.devices.ensure(context.device.model, downloadSignal => this.mijia.getDevicePluginMetadata(did, downloadSignal), signal) : null;
+        const deviceProgress = ({ phase, loaded, total }) => {
+            if (signal.aborted || instance.closed || this.generations.get(instance.id) !== generation || this.mijia.getSessionRevision() !== revision) return;
+            const percent = total > 0 ? Math.max(0, Math.min(100, loaded / total * 100)) : 0;
+            onProgress({ phase, resource: 'device', loaded, total, percent });
+        };
+        const selected = this.assets.launch ? await this.assets.launch.select({ mijia: this.mijia, assets: this.assets, context, did, signal, onProgress: deviceProgress }) : null;
+        const devicePackage = selected ? selected.devicePackage : this.assets.devices ? await this.assets.devices.ensure(context.device.model, downloadSignal => this.mijia.getDevicePluginMetadata(did, downloadSignal), signal, undefined, deviceProgress) : null;
         assert(!signal.aborted && !instance.closed && this.generations.get(instance.id) === generation && this.mijia.getSessionRevision() === revision, '加载已取消或账号已变化', 'CONTEXT_CHANGED');
         const id = crypto.randomBytes(24).toString('hex');
         const base = `${origin}${PREFIX}${id}/`;

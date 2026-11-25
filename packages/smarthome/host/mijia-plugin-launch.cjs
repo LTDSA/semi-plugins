@@ -46,7 +46,7 @@ class MijiaPluginLaunch {
         finally { await fs.promises.rm(stage, { force: true }); }
         return value;
     }
-    async select({ mijia, assets, context, did, signal, mode = 'auto' }) {
+    async select({ mijia, assets, context, did, signal, mode = 'auto', onProgress }) {
         const revision = mijia.getSessionRevision();
         const model = context.device.model;
         const { scope } = this.identity(mijia, model);
@@ -104,7 +104,7 @@ class MijiaPluginLaunch {
         if (standard && mode !== 'traditional' && (mode === 'standard' || preference === 0)) {
             try {
                 stage = 'package';
-                devicePackage = await assets.standardPackage(standard.candidate, standard.raw, standard.metadata, signal);
+                devicePackage = await assets.standardPackage(standard.candidate, standard.raw, standard.metadata, signal, onProgress);
                 assert(devicePackage.project.package_path === standard.candidate.package, '标准插件包名不一致', 'PLUGIN_INVALID');
                 style = 'standard';
             } catch (e) {
@@ -115,7 +115,7 @@ class MijiaPluginLaunch {
         }
         if (style === 'traditional') {
             assert(metadata.kind !== 'standard', '当前版本没有可用的标准首页，请稍后重试', 'PLUGIN_UNAVAILABLE');
-            devicePackage = original || await assets.devices.ensure(model, async () => ({ latest_info: [this.registration(metadata)] }), signal);
+            devicePackage = original || await assets.devices.ensure(model, async () => ({ latest_info: [this.registration(metadata)] }), signal, undefined, onProgress);
         }
         check(signal); assert(mijia.getSessionRevision() === revision, '米家账号已变化', 'CONTEXT_CHANGED');
         mijia.reportDevicePluginLaunch?.({ model, style, preference, mode, standard: standard ? { pluginId: standard.metadata.pluginId, version: standard.metadata.version } : null, fallbackReason: fallbackReason || null });
