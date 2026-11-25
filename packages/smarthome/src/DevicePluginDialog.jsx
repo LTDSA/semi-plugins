@@ -90,7 +90,7 @@ export default function DevicePluginDialog({ device, visible = true, onClose, af
             {runtime && !error && <iframe ref={setFrame} src={runtime.url} title={device.name} sandbox="allow-scripts" allow="bluetooth" className="smart-device-plugin-frame" />}
             {(loading || failure) && <div className="smart-device-plugin-status" role={failure ? 'alert' : 'status'}>
                 {failure ? <><span>{failure}</span><Button onClick={() => loaderRef.current?.retry()}>重试</Button></>
-                    : <Progress type="circle" size="small" showInfo={false} indeterminate={!downloadingPlugin}
+                    : <Progress type="circle" showInfo indeterminate={!downloadingPlugin}
                         percent={downloadingPlugin ? progress.percent : 0} />}
             </div>}
         </div>

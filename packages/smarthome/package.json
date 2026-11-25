@@ -1,6 +1,6 @@
 {
     "name": "@semi-app/smarthome",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "查看与控制米家智能设备",
     "author": "LTDSA",
     "files": [
