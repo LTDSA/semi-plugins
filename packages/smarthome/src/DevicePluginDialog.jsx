@@ -81,8 +81,7 @@ export default function DevicePluginDialog({ device, visible = true, onClose, af
         </Modal>;
     }
     const failure = state.error || error;
-    const progress = state.deviceProgress;
-    const downloadingPlugin = progress?.phase === 'download';
+    const pluginPercent = runtime ? 100 : Math.floor(state.deviceProgress?.percent ?? 0);
     return <Modal ref={pluginDialogRef} visible={visible} motion centered title={null} footer={null} closable={false} maskClosable onCancel={requestClose} afterClose={afterClose}
         className="smart-device-dialog" width="min(390px, calc((100dvh - 48px) * 0.4620853), calc(100vw - 48px))" bodyStyle={{ padding: 0 }}>
         <span id="semi-modal-title" className="smart-device-dialog-label">{device.name}</span>
@@ -90,8 +89,7 @@ export default function DevicePluginDialog({ device, visible = true, onClose, af
             {runtime && !error && <iframe ref={setFrame} src={runtime.url} title={device.name} sandbox="allow-scripts" allow="bluetooth" className="smart-device-plugin-frame" />}
             {(loading || failure) && <div className="smart-device-plugin-status" role={failure ? 'alert' : 'status'}>
                 {failure ? <><span>{failure}</span><Button onClick={() => loaderRef.current?.retry()}>重试</Button></>
-                    : <Progress type="circle" showInfo indeterminate={!downloadingPlugin}
-                        percent={downloadingPlugin ? progress.percent : 0} />}
+                    : <Progress type="circle" showInfo percent={pluginPercent} />}
             </div>}
         </div>
     </Modal>;
